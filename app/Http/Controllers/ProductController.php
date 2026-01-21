@@ -1,65 +1,50 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Services\ProductService;
+use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(protected ProductService $service) {}
+
+    public function index(): JsonResponse
     {
-        //
+        return response()->json($this->service->getPaginatedProducts());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(ProductRequest $request): JsonResponse
     {
-        //
+        $product = $this->service->createProduct($request->validated());
+        return response()->json($product, 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(Product $product): JsonResponse
     {
-        //
+        return response()->json(
+            $product->load(["category", "images", "reviews"]),
+        );
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
-    {
-        //
+    public function update(
+        ProductRequest $request,
+        Product $product,
+    ): JsonResponse {
+        $updatedProduct = $this->service->updateProduct(
+            $product,
+            $request->validated(),
+        );
+        return response()->json($updatedProduct);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
+    public function destroy(Product $product): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        //
+        $this->authorize("manage products");
+        $this->service->deleteProduct($product);
+        return response()->json(null, 204);
     }
 }

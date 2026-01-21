@@ -1,65 +1,37 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ImageRequest;
 use App\Models\Image;
-use Illuminate\Http\Request;
+use App\Services\ImageService;
+use Illuminate\Http\JsonResponse;
 
 class ImageController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(protected ImageService $imageService) {}
+
+    public function store(ImageRequest $request): JsonResponse
     {
-        //
+        $image = $this->imageService->addImage($request->validated());
+
+        return response()->json(
+            [
+                "success" => true,
+                "data" => $image,
+            ],
+            201,
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function destroy(Image $image): JsonResponse
     {
-        //
-    }
+        $this->imageService->deleteImage($image);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Image $image)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Image $image)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Image $image)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Image $image)
-    {
-        //
+        return response()->json([
+            "success" => true,
+            "message" => "Изображение удалено",
+        ]);
     }
 }

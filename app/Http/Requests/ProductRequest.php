@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ProductRequest extends FormRequest
 {
@@ -11,7 +12,11 @@ class ProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        return Auth::check() &&
+            $user->hasAnyRole(["admin", "owner", "moderator"]);
     }
 
     /**
@@ -22,12 +27,12 @@ class ProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'category_id' => 'required|exists:categories,id',
+            "name" => "required|string|max:255",
+            "description" => "required|string",
+            "price" => "required|numeric|min:0",
+            "quantity" => "required|integer|min:0",
+            "category_id" => "nullable|exists:categories,id",
+            "brand_id" => "nullable|exists:brands,id",
         ];
     }
 }

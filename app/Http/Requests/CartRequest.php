@@ -5,22 +5,18 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class ImageRequest extends FormRequest
+class CartRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        return Auth::check() &&
-            $user->hasAnyRole(["admin", "owner", "moderator"]);
+        return Auth::check();
     }
 
     public function rules(): array
     {
         return [
             "product_id" => "required|exists:products,id",
-            "url" => "required|string|max:255",
+            "quantity" => "integer|min:1",
         ];
     }
 }

@@ -2,64 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReviewRequest;
 use App\Models\Review;
-use Illuminate\Http\Request;
+use App\Services\ReviewService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
+    protected ReviewService $reviewService;
 
+    public function __construct(ReviewService $reviewService)
+    {
+        $this->reviewService = $reviewService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index(int $productId): JsonResponse
     {
+        $reviews = $this->reviewService->getProductReviews($productId);
 
+        return response()->json($reviews);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(ReviewRequest $request): JsonResponse
     {
+        $review = $this->reviewService->createReview($request->validated());
 
+        return response()->json($review, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Review $review)
+    public function destroy(Review $review): JsonResponse
     {
-        //
-    }
+        if (Auth::id() !== $review->user_id) {
+            return response()->json(["error" => "Unauthorized"], 403);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Review $review)
-    {
-        //
-    }
+        $this->reviewService->deleteReview($review);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Review $review)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Review $review)
-    {
-        //
+        return response()->json(null, 204);
     }
 }

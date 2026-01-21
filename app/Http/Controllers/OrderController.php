@@ -1,65 +1,58 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\OrderRequest;
 use App\Models\Order;
-use Illuminate\Http\Request;
+use App\Services\OrderService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(protected OrderService $orderService) {}
+
+    public function index(): JsonResponse
     {
-        //
+        $orders = $this->orderService->getUserOrders(Auth::id());
+        return response()->json($orders);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(OrderRequest $request): JsonResponse
     {
-        //
+        $order = $this->orderService->createOrder($request->validated());
+        return response()->json($order, 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(Order $order): JsonResponse
     {
-        //
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (
+            Auth::id() !== $order->user_id &&
+            !$user->hasAnyRole(["admin", "owner"])
+        ) {
+            return response()->json(["message" => "Forbidden"], 403);
+        }
+
+        return response()->json($order->load("products"));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
+    public function update(OrderRequest $request, Order $order): JsonResponse
     {
-        //
-    }
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        //
-    }
+        if (!$user->hasAnyRole(["admin", "owner", "moderator"])) {
+            return response()->json(["message" => "Forbidden"], 403);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order $order)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
+        $updatedOrder = $this->orderService->updateStatus(
+            $order,
+            $request->status,
+        );
+        return response()->json($updatedOrder);
     }
 }

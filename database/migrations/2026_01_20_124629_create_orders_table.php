@@ -4,32 +4,33 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create("orders", function (Blueprint $table) {
             $table->id();
-            $table->string('name')->max(255);
-            $table->string('address')->max(255);
-            $table->string('phone')->max(255);
-            $table->string('email')->max(255);
-            $table->string('status')->max(255);
-            $table->string('payment_method')->max(255);
-            $table->string('user_id')->max(255);
-            $table->string('product_id')->max(255);
+            $table->foreignId("user_id")->constrained()->cascadeOnDelete();
+            $table->decimal("total_price", 10, 2);
+            $table->string("status")->default("pending");
+            $table->string("address");
+            $table->string("phone");
+            $table->string("email");
+            $table->string("payment_method");
             $table->timestamps();
+        });
+
+        Schema::create("order_product", function (Blueprint $table) {
+            $table->id();
+            $table->foreignId("order_id")->constrained()->cascadeOnDelete();
+            $table->foreignId("product_id")->constrained()->cascadeOnDelete();
+            $table->integer("quantity")->default(1);
+            $table->decimal("price", 10, 2);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists("order_product");
+        Schema::dropIfExists("orders");
     }
 };

@@ -2,64 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Shop;
-use Illuminate\Http\Request;
+use App\Http\Requests\ShopRequest;
+use App\Services\ShopService;
+use Illuminate\Http\JsonResponse;
+use Exception;
 
 class ShopController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(protected ShopService $shopService) {}
+
+    public function index(): JsonResponse
     {
-        //
+        $shops = $this->shopService->getActiveShops();
+
+        return response()->json([
+            "success" => true,
+            "data" => $shops,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(ShopRequest $request): JsonResponse
     {
-        //
+        try {
+            $shop = $this->shopService->createShop($request->validated());
+
+            return response()->json(
+                [
+                    "success" => true,
+                    "data" => $shop,
+                ],
+                201,
+            );
+        } catch (Exception $e) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Ошибка: " . $e->getMessage(),
+                ],
+                500,
+            );
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function destroy(int $id): JsonResponse
     {
-        //
-    }
+        $this->authorize("manage admins");
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Shop $shop)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Shop $shop)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Shop $shop)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Shop $shop)
-    {
-        //
+        try {
+            $this->shopService->deleteShop($id);
+            return response()->json([
+                "success" => true,
+                "message" => "Магазин удален",
+            ]);
+        } catch (Exception $e) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "Ошибка удаления",
+                ],
+                404,
+            );
+        }
     }
 }
