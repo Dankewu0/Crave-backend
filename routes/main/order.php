@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\OrderController;
 
 Route::middleware("auth:sanctum")
     ->prefix("orders")

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\BrandController;
+use App\Http\Controllers\BrandController;
 
 Route::prefix("brands")->group(function () {
     Route::get("/", [BrandController::class, "index"]);

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\CartController;
 
 Route::middleware("auth:sanctum")
     ->prefix("cart")

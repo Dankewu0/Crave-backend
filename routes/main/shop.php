@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ShopController;
+use App\Http\Controllers\ShopController;
 
 Route::prefix("shops")->group(function () {
     Route::get("/", [ShopController::class, "index"]);

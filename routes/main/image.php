@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ImageController;
+use App\Http\Controllers\ImageController;
 
 Route::middleware("auth:sanctum")
     ->prefix("images")
