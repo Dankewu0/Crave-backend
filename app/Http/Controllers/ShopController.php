@@ -13,12 +13,23 @@ class ShopController extends Controller
 
     public function index(): JsonResponse
     {
-        $shops = $this->shopService->getActiveShops();
+        try {
+            $shops = $this->shopService->getActiveShops();
 
-        return response()->json([
-            "success" => true,
-            "data" => $shops,
-        ]);
+            return response()->json([
+                "success" => true,
+                "data" => $shops,
+            ]);
+        } catch (Exception $e) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" =>
+                        "Ошибка при получении магазинов: " . $e->getMessage(),
+                ],
+                500,
+            );
+        }
     }
 
     public function store(ShopRequest $request): JsonResponse
@@ -46,9 +57,9 @@ class ShopController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $this->authorize("manage admins");
-
         try {
+            $this->authorize("manage admins");
+
             $this->shopService->deleteShop($id);
             return response()->json([
                 "success" => true,
@@ -58,7 +69,7 @@ class ShopController extends Controller
             return response()->json(
                 [
                     "success" => false,
-                    "message" => "Ошибка удаления",
+                    "message" => "Ошибка удаления: " . $e->getMessage(),
                 ],
                 404,
             );

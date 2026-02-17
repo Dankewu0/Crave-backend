@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -15,26 +17,43 @@ class User extends Authenticatable
 
     protected $hidden = ["password", "remember_token"];
 
-    protected function casts(): array
-    {
-        return [
-            "email_verified_at" => "datetime",
-            "password" => "hashed",
-        ];
-    }
+    protected $casts = [
+        "email_verified_at" => "datetime",
+        "password" => "hashed",
+    ];
 
-    public function images()
+    public function images(): HasMany
     {
         return $this->hasMany(Image::class);
     }
 
-    public function privacySetting()
+    public function carts(): HasMany
     {
-        return $this->hasOne(PrivacySetting::class);
+        return $this->hasMany(Cart::class);
     }
 
-    public function chats()
+    public function orders(): HasMany
     {
-        return $this->belongsToMany(Chat::class);
+        return $this->hasMany(Order::class);
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class, "sender_id");
+    }
+
+    public function ticketMessages(): HasMany
+    {
+        return $this->hasMany(TicketMessage::class, "sender_id");
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, "role_user")->withTimestamps();
     }
 }
