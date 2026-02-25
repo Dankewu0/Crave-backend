@@ -12,4 +12,8 @@ Route::prefix("v1")->group(function () {
     require __DIR__ . "/main/cart.php";
     require __DIR__ . "/main/order.php";
     require __DIR__ . "/main/review.php";
+    require __DIR__ . "/main/conversation.php";
+    require __DIR__ . "/main/message.php";
+    require __DIR__ . "/main/ticket.php";
+    require __DIR__ . "/main/ticketmessage.php";
 });
